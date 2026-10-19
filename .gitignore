@@ -14,6 +14,9 @@ __pycache__/
 media/
 staticfiles/
 *.dump
+*.backup
+backups/
+*.sqlite3
 *.sql
 .coverage
 htmlcov/

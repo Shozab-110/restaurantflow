@@ -1,172 +1,130 @@
+<p align="center"><img src="docs/assets/restaurantflow-banner.svg" alt="RestaurantFlow — orders, kitchen, checkout" width="100%"></p>
+
 # RestaurantFlow
 
-A persistent, multi-user restaurant POS, order management, and kitchen display application built with Django and PostgreSQL. RestaurantFlow connects the dining room, kitchen, and cashier through a shared workflow, with a custom business frontend rather than a dependency on Django Admin.
+[![RestaurantFlow CI](https://github.com/Shozab-110/restaurantflow/actions/workflows/ci.yml/badge.svg)](https://github.com/Shozab-110/restaurantflow/actions/workflows/ci.yml)
 
-## What it does
+A Django and PostgreSQL restaurant POS that connects the dining room, kitchen, and cashier. Staff work from one shared order record, with persistent transactions, role permissions, kitchen tickets, and a custom administration frontend.
 
-- Secure staff login, rate limiting, password changes, owner/manager password resets, role assignment, and account activation.
-- Custom dashboard with actual paid-and-fulfilled sales, net cash/digital collections, order value, table occupancy, recent orders, top items, and a Chart.js trend.
-- Touch-friendly POS with category/search filters, draft quantity/notes editing, dine-in, takeaway, and delivery details.
-- Kitchen tickets with instructions, elapsed times, overdue indicators, validated transitions, additional submissions, and five-second HTMX polling.
-- Separate order, fulfillment, kitchen, and payment states. Tables remain occupied until fulfillment and full settlement, then become available.
-- Decimal billing, historical price/tax/currency snapshots, permission-controlled discounts, partial/multiple payments, idempotency keys, and row locking.
-- Manually confirmed cash, card, bank, and other digital payments. **No live payment gateway is connected.**
-- Safe cancellation and kitchen-item voiding, recorded reasons, confirmed full refunds for eligible open orders, and audit history.
-- Frontend menu/category CRUD, validated image uploads, table/area management, customers, discount offers, staff, restaurant settings, and a payment ledger.
-- Date-filtered daily/item/category/cashier/payment/discount/cancellation/outstanding/kitchen reports and CSV exports; print-friendly HTML bills/receipts.
+Built for a single restaurant per installation. This is a working MVP with automated workflow tests; deployment-specific acceptance is still required before live business use.
 
-## Stack and structure
+## What you can do
 
-Python 3.12, Django 5.2 LTS, PostgreSQL 17, Django templates, compiled Tailwind CSS, locally bundled HTMX/Alpine.js/Chart.js, Django Axes, WhiteNoise, Gunicorn, Docker Compose, and optional Caddy HTTPS reverse proxy. Dependencies are pinned in `requirements.lock` and `package-lock.json`; compiled frontend assets are checked in so local Python startup does not need Node.
+| Area | Implemented behavior |
+|---|---|
+| POS | Dine-in, takeaway, delivery, searchable menu, quantities, instructions, additional kitchen submissions |
+| Kitchen | Five-second partial updates, overdue tickets, preparation and ready transitions, service/handoff |
+| Billing | Decimal totals, price/tax/currency snapshots, discounts, partial and multiple payments, retry protection |
+| Restaurant operations | Visual tables and areas, menu/categories, image uploads, customers, order history |
+| Administration | Staff and roles, account activation, password resets, restaurant settings, audit history |
+| Reports | Date filters, sales, collections, outstanding balances, items/categories/cashiers, kitchen performance, CSV |
+| Receipts | Itemized, print-friendly HTML receipts with restaurant details and payment breakdown |
+| Security | Session login, CSRF, server-side permissions, login throttling, transaction locks, validated uploads |
 
-```text
-restaurantflow/       Environment-based Django configuration
-operations/           Models, permissions, forms, views, reporting
-  services.py         Transactional ordering, kitchen, payment, refund rules
-  migrations/         PostgreSQL schema migrations
-  management/commands/ Safe initialization and separate demo seeding
-  tests/              Business, frontend, security, and concurrency tests
-templates/            Shared design system and custom business pages
-static/               Compiled CSS, local libraries, application JS
-scripts/              Asset build, initialization, health and Windows startup
-deploy/               HTTPS reverse proxy configuration
-docs/                 Operations and deployment guides
-PROGRESS.md           Actual verification results and remaining limitations
+Payments and refunds are manually confirmed records. There is no live payment gateway. Normal business administration uses the application frontend; Django Admin is optional technical maintenance.
+
+## Start with Docker
+
+Install Git, Python 3.12, and a running Docker Engine with Compose v2. Docker Desktop account sign-in is not required for the local application.
+
+```bash
+git clone https://github.com/Shozab-110/restaurantflow.git
+cd restaurantflow
+python scripts/configure_local.py
+docker compose config --quiet
+docker compose up -d --build --wait
+docker compose exec web python manage.py create_owner --username owner
 ```
 
-## Screenshots
+Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)** and sign in with the owner password you chose at the hidden prompt. No shared owner password is published. The configuration helper generates local secrets and refuses to overwrite an existing `.env`.
 
-Browser verification results and screenshots, when available, are recorded in `PROGRESS.md`. The application includes dashboard, POS, kitchen, floor layout, management, and print receipt views. No mock screenshots are presented as proof of functionality.
+PostgreSQL stays inside the Docker network and stores records in a persistent volume. `docker compose down` retains data. See [Getting started](docs/GETTING_STARTED.md) for native Python, a host-accessible Docker database, existing PostgreSQL, safe demo setup, and Windows commands.
 
-## Roles
+## Follow an order
 
-| Role | Business access |
+1. **Dine-in:** waiter selects a table, adds items, and submits a kitchen ticket. Kitchen starts preparation and marks it ready. Waiter serves it; cashier prints the bill and records payment. Full settlement and fulfillment close the order and release the table.
+2. **Takeaway / delivery:** cashier creates an order, kitchen prepares it, cashier collects payment and confirms handoff. Delivery requires customer contact and address.
+3. **Cancellation:** an authorized manager or owner provides a reason. Any collected money must be returned manually and confirmed before the system records the cancellation and refunds together.
+
+See [daily operations and accounting rules](docs/OPERATIONS.md) for service, payment, discount, and cancellation behavior.
+
+## Staff roles
+
+| Role | Access |
 |---|---|
 | Owner | All business operations, settings, staff/roles, reports, audit |
-| Manager | Operations, menu/tables/customers, discounts/cancellations, reports, audit; manages operational staff |
-| Cashier | POS, all orders, service/handoff, payments, customers, dashboard and own payment activity |
-| Waiter | Assigned/unassigned available tables, own/assigned dine-in orders, kitchen submission, serving, bill requests |
-| Kitchen Staff | Kitchen board and preparing/ready transitions |
+| Manager | Menu, tables, orders, customers, reports, discounts/cancellations; operational staff management |
+| Cashier | POS, orders, service/handoff, billing/payments, customers, dashboard and own payment activity |
+| Waiter | Assigned/unassigned available tables, own/assigned dine-in orders, submission, serving, bill requests |
+| Kitchen Staff | Kitchen queue and preparing/ready transitions |
 
-Business owners are normal Django users with group permissions, not technical superusers. Business staff cannot access the technical admin. Inactive users cannot authenticate. Views and transactional services both enforce permissions.
+Owners use regular Django accounts with group permissions. Views and transactional services enforce access. Create subsequent users through **Staff & Roles**, choose their role, and set an initial password. Inactive accounts cannot log in.
 
-## Local installation with PostgreSQL
+## Technology and data
 
-Use Python 3.12+ and PostgreSQL 14+ (17 is recommended). **There is no SQLite fallback.**
+Python 3.12, Django 5.2 LTS, PostgreSQL 17, Django templates, Tailwind CSS, HTMX, Alpine.js, Chart.js, Django Axes, Gunicorn, WhiteNoise, and Docker Compose. Caddy provides the optional HTTPS reverse proxy. Python and Node dependencies have lockfiles. Compiled frontend assets are included for native Python startup.
 
-```bash
-python -m venv .venv
-# Linux/macOS:
-source .venv/bin/activate
-# Windows PowerShell:
-# .\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.lock
-cp .env.example .env
+There is **no SQLite fallback**. Orders snapshot prices and billing settings; protected historical references preserve previous transactions when the menu changes. Critical operations use PostgreSQL row locks, unique constraints, and database transactions. Payment retry tokens prevent duplicate ledger entries.
+
+```text
+restaurantflow/      Environment-based Django configuration
+operations/          Models, forms, permissions, views, reporting
+  services.py        Ordering, kitchen, payment and cancellation rules
+  migrations/        Versioned PostgreSQL schema
+  tests/             Business, frontend, security and concurrency tests
+templates/           Custom business pages and shared design system
+assets/              Tailwind input
+static/              Compiled CSS, local libraries and application JS
+scripts/             Setup, assets, initialization and verification
+deploy/              HTTPS proxy configuration
+docs/                Setup, operations, design and deployment guides
 ```
 
-Set `DJANGO_SECRET_KEY` to a randomly generated value (e.g. `python -c "import secrets; print(secrets.token_urlsafe(60))"`). For loopback development set `DJANGO_DEBUG=true`, `DJANGO_SECURE_SSL_REDIRECT=false`, `TRUST_PROXY_HEADERS=false`, `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`, and the PostgreSQL connection fields. Do not reuse local secrets for production.
+Learn [where the database lives and how to view tables](docs/DATABASE.md), or inspect the [architecture and workflow diagrams](docs/ARCHITECTURE.md). Database binaries, live records, uploads, `.env`, and generated credentials are excluded from Git.
 
-Create the database/user using your PostgreSQL installation, or start just the database with Docker:
+## Verification
 
-```bash
-docker compose up -d db
-# For a host Python process, use your installed PostgreSQL or publish a loopback-only
-# database port with a local Compose override. The default Compose database is internal.
-python manage.py migrate
-python manage.py bootstrap_roles
-python manage.py create_owner --username owner --email owner@example.com
-python manage.py collectstatic --noinput
-python manage.py runserver 127.0.0.1:8000
-```
+The local acceptance run passed **29 PostgreSQL workflow/security/concurrency tests**, **5 POS DOM interaction tests**, Django configuration/deployment checks, and authenticated HTTP route/static-asset checks. Four additional configuration-helper tests cover secret generation, non-overwriting setup, and special-character handling. Exact evidence and open checks are recorded in [PROGRESS.md](PROGRESS.md).
 
-`create_owner` prompts for the password without echoing it, or reads `RESTAURANTFLOW_OWNER_PASSWORD` temporarily from the environment. It refuses to overwrite existing users or create a second initial owner; subsequent accounts are managed in **Staff & Roles**. Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
-
-For this Windows workspace, the official portable PostgreSQL runtime is installed under ignored `.local/pg-runtime/pgsql/` (the helper also supports `.local/pgsql/`). With the runtime installed and `.env` configured, `python scripts/local_postgres.py start` initializes a password-authenticated cluster bound only to `127.0.0.1` and creates the application database. `scripts/start.ps1` starts it and Django; `python scripts/local_postgres.py stop` stops it. Its workspace port is 5433. This helper does not install or change Windows services. Binaries come from the [official PostgreSQL Windows download](https://www.postgresql.org/download/windows/) / [EDB vendor archive](https://www.enterprisedb.com/download-postgresql-binaries), and are not included in Git.
-
-## Demonstration setup
-
-Use a **separate non-production database** with `DJANGO_DEBUG=true`:
-
-```bash
-python manage.py migrate
-# Set RESTAURANTFLOW_DEMO_PASSWORD in your shell to a strong temporary password.
-python manage.py seed_demo --confirm-demo
-```
-
-This idempotent command adds The Olive Table, 3 areas, 12 tables, 5 categories, 25 items, sample customers, realistic paid/open/cancelled orders, kitchen tickets, payments, and `owner`, `manager`, `cashier`, `waiter`, `kitchen` accounts. It does not reset existing passwords or overwrite operational records. New demo accounts use the password you supplied; keep it out of Git and unset it afterward. **Never seed or retain demo accounts on a live restaurant database.**
-
-If this workspace was initialized during implementation, locally generated demo access details are in the ignored `.local/demo-access.txt` file. These are disposable local credentials, not production credentials.
-
-## Daily workflows
-
-1. **Dine-in:** waiter selects a table → creates items → sends kitchen ticket → kitchen starts and marks ready → waiter marks served → cashier prints bill and records full/partial collections → order closes when fully settled → table releases.
-2. **Takeaway/delivery:** cashier creates order → kitchen prepares and marks ready → cashier collects the full bill → confirms handoff. Delivery requires name, phone, and address.
-3. **Added items:** open an existing unfulfilled order → Add items → save → Send new items to kitchen. Existing tickets remain intact.
-4. **Cancellation:** manager/owner opens an eligible open order → gives a reason → if money was collected, returns it manually via original methods and confirms this → cancellation/refunds recorded atomically. Retrying does not create duplicate refunds.
-
-See [operations and accounting rules](docs/OPERATIONS.md) for detailed behavior.
-
-## Testing and asset development
-
-Executed build verification: **29 PostgreSQL tests and 5 POS DOM interaction tests passed**, with additional focused authentication/page regressions. Normal and production security checks, migration consistency, real HTTP owner login/17 endpoints/8 assets, and production WhiteNoise assets passed. Browser screenshot/layout and Docker/HTTPS runtime verification remain environment-blocked; exact details and next actions are in [PROGRESS.md](PROGRESS.md).
-
-The test database uses PostgreSQL. The test user needs `CREATEDB` on a **development/test server**, not on a production application role.
+GitHub Actions runs locked dependency installation, frontend compilation, PostgreSQL tests, POS interaction checks, production settings checks, and a Docker stack smoke test on Linux. Its actual result is linked by the badge above; a workflow file alone is not proof of a passing run.
 
 ```bash
 python manage.py check
 python manage.py makemigrations --check --dry-run
-python manage.py test operations.tests --verbosity 2
-# Run with production environment flags and a real random secret:
-DJANGO_DEBUG=false python manage.py check --deploy --fail-level WARNING
+python manage.py test operations.tests --noinput --verbosity 2
+python -m unittest discover -s tests -v
+python scripts/check_docs.py
 ```
 
-On PowerShell set `$env:DJANGO_DEBUG='false'` for the deploy check, then remove it to restore `.env` development settings. Workflow, authentication, role enforcement, menu administration, immutable prices, table conflicts, kitchen transitions, Decimal/partial/idempotent payments, cancellation/refunds, reporting reconciliation, uploads, password changes, frontend routes, and PostgreSQL concurrency are tested. Consult `PROGRESS.md` for actual executed results; the existence of tests alone is not a passed test run.
+See [Testing](docs/TESTING.md) for requirements, frontend tests, and production configuration checks. See [Findings and solutions](docs/FINDINGS_AND_SOLUTIONS.md) for the actual setup issues, causes, fixes, and remaining verification gaps.
 
-To change CSS or library versions:
+## Documentation
 
-```bash
-npm ci
-npm run build
-python manage.py collectstatic --noinput
-```
+| Guide | Contents |
+|---|---|
+| [Getting started](docs/GETTING_STARTED.md) | Docker/native setup, owner account, demo data |
+| [Operations](docs/OPERATIONS.md) | Staff workflows and accounting rules |
+| [Database](docs/DATABASE.md) | Storage location, schema, PostgreSQL/pgAdmin access |
+| [Architecture](docs/ARCHITECTURE.md) | Application layers, invariants, workflow diagrams |
+| [Testing](docs/TESTING.md) | Automated checks and reproducible commands |
+| [Findings and solutions](docs/FINDINGS_AND_SOLUTIONS.md) | Problems encountered and verified fixes |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Login, Docker, database, assets, business-rule errors |
+| [Deployment](docs/DEPLOYMENT.md) | Ubuntu, HTTPS, secrets, health, backup and restore |
+| [Screenshots](docs/SCREENSHOTS.md) | Actual capture checklist and current visual QA limits |
+| [Progress](PROGRESS.md) | Completed work, test evidence, pending acceptance |
 
-To verify POS interactions without a browser against a seeded development database:
+The banner is a project illustration. Browser screenshot capture was unavailable in the development environment, so no screenshots or visual verification results are fabricated.
 
-```bash
-python scripts/render_pos_fixture.py
-npm run test:pos
-```
+## Scope and remaining work
 
-These five DOM tests exercise the actual rendered POS markup: checkout requirements, quantity changes, special instructions, search/categories, and integer-based tax/service previews. They do not replace responsive browser layout or receipt-printer verification.
+- One restaurant per installation. Inventory, purchasing, formal cash-drawer shifts, split checks, table transfers, offline mode, and dispatch integrations are future work.
+- Closed orders are immutable. Post-close accounting adjustments need a controlled external process in this MVP.
+- Order-wide tax/service apply to the discounted subtotal with half-up rounding; no item-specific tax regimes, inclusive pricing, or currency conversion.
+- HTML printing and browser Save as PDF are supported; dedicated PDF generation and kitchen sound alerts are deferred.
+- Production acceptance still requires actual DNS/TLS, restricted runtime database privileges, external backups and restore rehearsal, expected-load checks, browser/tablet review, and receipt-printer testing. Local checks do not certify an installed production environment.
 
-## Database overview
+## Contributing and security
 
-Restaurant settings are a singleton; Django users/groups supply authentication and permissions. Areas own tables, categories own menu items, and customers are optional order references. Orders snapshot customer details, currency, tax/service rates, item names/categories/prices. Order items are individually linked to kitchen ticket lines; each new submission contains only unsent lines. Payments are an append-only business ledger with unique retry tokens and one-to-one original-payment refund links. Audit entries record staff actions and reasons. Historical foreign keys use protection rather than cascade deletion.
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [CHANGELOG.md](CHANGELOG.md). Use sanitized examples in issues. Never upload customer records, passwords, `.env`, or database dumps.
 
-Unique partial constraints prevent more than one open order per table; monetary and table/type constraints complement service validation. Critical services use transactions and PostgreSQL `SELECT FOR UPDATE`. Every menu change affects future additions only. Category and item deactivation preserves order history.
-
-## Deployment
-
-See [Ubuntu / Docker deployment](docs/DEPLOYMENT.md) for HTTPS, secrets, migration sequencing, media/static files, health checks, backups, and restore commands. Production uses PostgreSQL and Gunicorn behind an HTTPS reverse proxy. **Do not expose Django runserver or a database port to the internet.**
-
-```bash
-docker compose config --quiet
-docker compose up -d --build
-docker compose exec web python manage.py create_owner --username owner
-# With DNS configured and RESTAURANT_DOMAIN set:
-docker compose --profile https up -d
-```
-
-No GitHub remote is configured and nothing is published automatically.
-
-## Known scope limits
-
-- Single restaurant per installation. No multi-tenant billing, inventory, purchasing, shift opening/closing cash reconciliation, split checks, table transfers, offline mode, or delivery dispatch integration.
-- Payment methods are manually recorded; refunds must actually be performed outside the application before confirmation. No gateway or fiscal/tax authority integration.
-- Closed orders are immutable in this MVP. Post-close corrections require a controlled, documented accounting adjustment outside this application; do not edit historical database rows.
-- Percentage offers are converted to fixed order discounts when applied. Tax and service are computed on the discounted item subtotal using half-up currency rounding; no tax-inclusive pricing or multi-rate item tax rules.
-- HTML receipts support browser printing / Save as PDF; a dedicated PDF generator and kitchen sound notifications are deferred.
-- Live display uses polling, not WebSockets. A kitchen operator shares one restaurant queue.
-- Production readiness requires deployment-specific HTTPS, backups, restore practice, upload serving, load checks, and business acceptance. Passing local checks alone does not certify a deployed environment.
-
-Future improvements include inventory, formal shifts/cash drawers, split checks, controlled post-close adjustments, granular item fulfillment, and stronger deployment observability.
+No project-wide open-source license has been selected yet. Public repository visibility does not grant a general reuse license. Bundled third-party notices remain with their assets.

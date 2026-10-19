@@ -61,7 +61,7 @@ Updated: 19 October 2026 (Asia/Karachi).
 | Git ignore inspection | PASS: environment, credentials, runtime/database data, venv, caches and editor settings excluded |
 | Generated-secret source scan | PASS: 85 source files checked; no generated Django/database/demo credentials present |
 
-Source and migration files are committed to a local Git repository. No remote is configured and nothing has been pushed.
+Source and migration files are committed to a local Git repository. The owner has authorized publication to the public `Shozab-110/restaurantflow` repository; repository preparation and upload verification are recorded below.
 
 Tests cover all four requested workflows, authentication/deactivation/CSRF/throttling, permissions/isolation, frontend administration, table conflicts, Decimal totals, snapshots, kitchen transitions, additional tickets, partial/retried/concurrent payments, refunds/cancellation, upload validation, reporting reconciliation, currencies, password changes, demo idempotency, and primary forms/pages.
 
@@ -92,8 +92,19 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Percentage offers convert to fixed discounts on application. Advanced promotions are deferred.
 - Operating hours are informational rather than enforced.
 - HTML printing / browser Save as PDF is supported; dedicated PDF generation, kitchen sound, and advanced analytics are deferred.
-- PostgreSQL binaries, demo data, and generated credentials remain local-only. No external publication or GitHub push is authorized.
+- PostgreSQL binaries, live records, demo database contents, and generated credentials remain local-only. Only sanitized application source, migrations, assets, and documentation are authorized for GitHub publication.
 
 ## Deployment status
 
 **Usable, tested local MVP; not certified production-ready.** Outstanding checks and exact next actions are stated above. See `README.md`, `docs/OPERATIONS.md`, and `docs/DEPLOYMENT.md`.
+
+## Public repository preparation — 2026-10-19
+
+- Target: public `Shozab-110/restaurantflow`, explicitly authorized by the owner. Existing Git credentials authenticate as the correct account; the target name was available at the initial check.
+- Added a branded README, linked setup/architecture/database/testing/troubleshooting guides, findings and solutions, contribution/security/change records, issue forms, and a PR template.
+- Added a safe local environment generator that never overwrites an existing `.env`; PostgreSQL credentials containing literal interpolation characters are handled without expansion.
+- Added a loopback-only Docker database development override, so a host Python process can reach PostgreSQL without exposing the production database.
+- Added pinned GitHub Actions automation for PostgreSQL tests, frontend checks, deployment settings, and an actual Linux Docker smoke test.
+- Final repository-preparation rerun: all 29 PostgreSQL tests passed in 80.435 seconds; all 5 POS DOM tests and all 4 configuration-helper tests passed.
+- Frontend rebuild/static collection, normal and production Django checks, migration drift, both Compose configurations, and all 44 relative documentation links passed.
+- Pending: final local checks, full-history secret/data exclusion scan, public upload, and hosted workflow results. No hosted CI success or Docker runtime result is claimed yet.

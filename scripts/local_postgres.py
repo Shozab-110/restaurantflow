@@ -8,7 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 root = Path(__file__).resolve().parent.parent
-load_dotenv(root / '.env')
+load_dotenv(root / '.env', interpolate=False)
 local = root / '.local'
 runtime = local / 'pg-runtime' / 'pgsql'
 bin_dir = (runtime if runtime.exists() else local / 'pgsql') / 'bin'

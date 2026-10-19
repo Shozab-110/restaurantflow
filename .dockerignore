@@ -16,3 +16,7 @@ __pycache__
 test-results
 *.log
 *.dump
+*.sql
+*.backup
+backups
+*.sqlite3
