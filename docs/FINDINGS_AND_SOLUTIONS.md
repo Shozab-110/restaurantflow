@@ -25,7 +25,8 @@ This log distinguishes application defects, setup problems, and verification tha
 | Fresh-clone instructions started a Docker DB unreachable from host Django | The base Compose stack deliberately has no published DB port | Added an explicit loopback-only development override and separate full-Docker/native setup paths | `docker-compose.dev.yml`, `docs/GETTING_STARTED.md` |
 | Copying an example environment could leave placeholder secrets or replace working credentials | Manual setup was ambiguous and unsafe to repeat | Added exclusive-file environment generation, hidden existing-password input, generated secrets, literal dotenv loading and no-overwrite tests | `scripts/configure_local.py`, configuration safety tests |
 | Repository evidence and operational notes were scattered | Build notes alone were insufficient for a new contributor | Added focused architecture, database, testing, troubleshooting, operations, deployment and contribution guides plus CI/templates | Documentation link check and repository review |
-| First Linux CI run passed all 29 tests but could not drop its test database | Thread workers used `close_old_connections()`, which retains healthy persistent connections until their lifetime expires | Explicitly close each worker thread's connections in its `finally` block; retain the normal application connection lifetime | `ConcurrencyTests`; fresh-database cleanup and hosted CI rerun |
+| First Linux CI run passed all 29 tests but could not drop its test database | Thread workers used `close_old_connections()`, which retains healthy persistent connections until their lifetime expires | Explicitly close each worker thread's connections in its `finally` block; retain the normal application connection lifetime | Both local concurrency tests passed with fresh teardown; [full hosted rerun passed](https://github.com/Shozab-110/restaurantflow/actions/runs/39275185992) |
+| Original host could not verify the Docker image | Windows Docker engine was unavailable | Added a Linux GitHub Actions image/stack smoke test using disposable databases/secrets | [Verified CI](https://github.com/Shozab-110/restaurantflow/actions/runs/39275185992): image build, initialization, DB/Gunicorn health, HTTP login, owner creation and production check passed |
 
 ## Open verification items
 
@@ -33,9 +34,8 @@ This log distinguishes application defects, setup problems, and verification tha
 |---|---|---|
 | Desktop/tablet browser rendering and screenshots | HTTP and DOM checks pass; the original automation environment exposed no browser surface | Follow `SCREENSHOTS.md` using an available browser and synthetic demonstration data |
 | Physical receipt printer | Print-friendly HTML/CSS exists and receipt routes are tested | Print on the intended device/paper size and verify totals, margins, cutter behavior and legibility |
-| Local Docker Desktop runtime | The original Windows engine returned connection/API errors | Start a working Linux Docker engine or use the GitHub CI container smoke test; inspect its actual result |
+| Local Docker Desktop runtime | The original Windows engine returned connection/API errors; the full container stack passed on the Linux CI runner | Use the native PostgreSQL setup or repair/start the local Docker engine before choosing local Docker startup |
 | Real HTTPS/VPS deployment | Caddy/Gunicorn/WhiteNoise configuration and production Django checks exist | Deploy with DNS/TLS, a restricted runtime DB role, health probes and a restore rehearsal per `DEPLOYMENT.md` |
-| Hosted CI status | Workflow runs the tests and container smoke check on pushes/PRs | Inspect the repository Actions result; configuration alone is not a passing run |
 
 ## Deliberate product limitations
 

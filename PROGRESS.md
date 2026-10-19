@@ -58,6 +58,7 @@ Updated: 19 October 2026 (Asia/Karachi).
 | npm installation audit | PASS; zero vulnerabilities reported |
 | Template compilation | PASS: all 22 templates |
 | `docker compose config --quiet` | PASS |
+| Linux GitHub CI / complete Docker stack | PASS; image build, initialization, PostgreSQL/Gunicorn health, login, owner creation and container production check |
 | Git ignore inspection | PASS: environment, credentials, runtime/database data, venv, caches and editor settings excluded |
 | Generated-secret source scan | PASS: 85 source files checked; no generated Django/database/demo credentials present |
 
@@ -80,7 +81,7 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 ## Blocked verification and exact next actions
 
 1. **Browser layout/tablet interaction/screenshots/physical receipt printing:** browser inventory is empty; both IAB and Chrome return `Browser is not available`. Connect a supported browser, open the local URL, run the session in `docs/OPERATIONS.md`, inspect desktop/tablet layouts, and capture actual screenshots for README. No screenshots were fabricated.
-2. **Docker image/container/Caddy HTTPS runtime:** Docker Desktop was started, but its Linux engine remains unavailable / returns HTTP 500 for its information API. On a host with a working engine, run `docker compose config --quiet`, `docker compose --profile https up -d --build`, then the health/HTTPS checks in `docs/DEPLOYMENT.md`. Compose configuration passes; a successful container deployment is not claimed. Account sign-in is normally optional and is not needed for the current local app.
+2. **Local Windows Docker / target Caddy HTTPS:** the original Docker Desktop engine remains unavailable / returns HTTP 500. The complete application container stack has now passed on GitHub's Linux runner (evidence below). Caddy with actual DNS/TLS remains unverified: on the intended host run `docker compose --profile https up -d --build`, then the health/HTTPS checks in `docs/DEPLOYMENT.md`. Docker account sign-in is normally optional and is not needed for the current native local app.
 3. **Production operational acceptance:** configure target DNS/TLS, restricted runtime database credentials, external backups, restore rehearsal, expected-load checks, and a real receipt printer. Local security checks do not certify a production deployment.
 
 ## Explicit MVP limitations / deferred features
@@ -110,5 +111,10 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Authenticated HTTP rerun passed: owner session, all 17 endpoints, and all 8 local assets.
 - Full-history audit passed before upload: all 4 commits / 108 historical blobs checked against generated local credentials and token/private-key patterns; excluded runtime/data paths absent.
 - Published source to the authorized [public repository](https://github.com/Shozab-110/restaurantflow); verified remote `main` matches commit `fba95a8`.
-- First hosted [CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39274706348): all 29 test assertions passed in 16.056 seconds, but test-database teardown failed because worker threads retained healthy connections. Fixed the concurrency tests to close each thread's connections explicitly in `finally`; rerun pending.
+- First hosted [CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39274706348): all 29 test assertions passed in 16.056 seconds, but test-database teardown failed because worker threads retained healthy connections. Fixed the concurrency tests to close each thread's connections explicitly in `finally`.
 - Enabled GitHub private vulnerability reporting. Generated disposable CI secrets are now masked in runner output.
+- Local fix verification: both concurrency tests passed in 13.623 seconds with successful fresh test-database creation and deletion.
+- Final hosted [CI run — PASS](https://github.com/Shozab-110/restaurantflow/actions/runs/39275185992) on application commit `bad6305`: 29 PostgreSQL tests in 15.107 seconds with successful teardown, 4 configuration tests, 5 POS DOM tests, asset build, migration drift, 44 documentation links and production checks all passed.
+- Linux Docker verification passed: multi-stage image built; init completed migrations/roles/static collection; PostgreSQL and Gunicorn became healthy; `/health/` returned PostgreSQL `ok`; `/login/` returned success; initial owner creation and in-container deployment checks passed. CI containers shut down successfully.
+- Public README/banner were fetched successfully without authentication. Remaining acceptance concerns are browser/tablet/screenshots, physical printer, and the actual production HTTPS/backup/privilege/load configuration described above.
+- Final follow-up is documentation-only; validated relative links locally and retained the successful application CI evidence rather than rerunning unchanged application tests.
