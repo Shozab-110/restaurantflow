@@ -25,6 +25,7 @@ This log distinguishes application defects, setup problems, and verification tha
 | Fresh-clone instructions started a Docker DB unreachable from host Django | The base Compose stack deliberately has no published DB port | Added an explicit loopback-only development override and separate full-Docker/native setup paths | `docker-compose.dev.yml`, `docs/GETTING_STARTED.md` |
 | Copying an example environment could leave placeholder secrets or replace working credentials | Manual setup was ambiguous and unsafe to repeat | Added exclusive-file environment generation, hidden existing-password input, generated secrets, literal dotenv loading and no-overwrite tests | `scripts/configure_local.py`, configuration safety tests |
 | Repository evidence and operational notes were scattered | Build notes alone were insufficient for a new contributor | Added focused architecture, database, testing, troubleshooting, operations, deployment and contribution guides plus CI/templates | Documentation link check and repository review |
+| First Linux CI run passed all 29 tests but could not drop its test database | Thread workers used `close_old_connections()`, which retains healthy persistent connections until their lifetime expires | Explicitly close each worker thread's connections in its `finally` block; retain the normal application connection lifetime | `ConcurrencyTests`; fresh-database cleanup and hosted CI rerun |
 
 ## Open verification items
 

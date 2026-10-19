@@ -127,4 +127,4 @@ The banner is a project illustration. Browser screenshot capture was unavailable
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [CHANGELOG.md](CHANGELOG.md). Use sanitized examples in issues. Never upload customer records, passwords, `.env`, or database dumps.
 
-No project-wide open-source license has been selected yet. Public repository visibility does not grant a general reuse license. Bundled third-party notices remain with their assets.
+No project-wide open-source license has been selected yet. Bundled third-party notices remain with their assets.

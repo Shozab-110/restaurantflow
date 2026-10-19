@@ -61,7 +61,9 @@ jobs:
           import os, secrets
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as handle:
               for name in ['DJANGO_SECRET_KEY', 'RESTAURANTFLOW_DEMO_PASSWORD', 'RESTAURANTFLOW_OWNER_PASSWORD']:
-                  handle.write(name + '=' + secrets.token_urlsafe(60) + '\n')
+                  value = secrets.token_urlsafe(60)
+                  print('::add-mask::' + value)
+                  handle.write(name + '=' + value + '\n')
           PY
       - name: Build frontend and verify configuration
         run: |

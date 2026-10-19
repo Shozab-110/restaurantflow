@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import IntegrityError, transaction, close_old_connections
+from django.db import IntegrityError, transaction, close_old_connections, connections
 from django.test import TestCase, TransactionTestCase, Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -283,7 +283,7 @@ class ConcurrencyTests(Fixtures, TransactionTestCase):
             try:
                 user=User.objects.get(pk=self.cashier.pk)
                 return services.record_payment(user,order.pk,amount='100',method='cash',reference='',request_key=token).pk
-            finally:close_old_connections()
+            finally:connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:ids=list(pool.map(lambda _:pay(),range(2)))
         self.assertEqual(ids[0],ids[1]);self.assertEqual(Payment.objects.filter(order=order).count(),1)
         order.refresh_from_db();self.assertEqual(order.paid_amount,100)
@@ -295,6 +295,6 @@ class ConcurrencyTests(Fixtures, TransactionTestCase):
                 try:
                     services.create_order(user,request_key=uuid.uuid4(),order_type='dine_in',table=table,lines=[{'id':self.item.pk,'quantity':1}]);return True
                 except ValidationError:return False
-            finally:close_old_connections()
+            finally:connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(create,range(2)))
         self.assertEqual(sum(results),1);self.assertEqual(Order.objects.filter(table=self.table,status='open').count(),1)

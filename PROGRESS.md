@@ -107,4 +107,8 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Added pinned GitHub Actions automation for PostgreSQL tests, frontend checks, deployment settings, and an actual Linux Docker smoke test.
 - Final repository-preparation rerun: all 29 PostgreSQL tests passed in 80.435 seconds; all 5 POS DOM tests and all 4 configuration-helper tests passed.
 - Frontend rebuild/static collection, normal and production Django checks, migration drift, both Compose configurations, and all 44 relative documentation links passed.
-- Pending: final local checks, full-history secret/data exclusion scan, public upload, and hosted workflow results. No hosted CI success or Docker runtime result is claimed yet.
+- Authenticated HTTP rerun passed: owner session, all 17 endpoints, and all 8 local assets.
+- Full-history audit passed before upload: all 4 commits / 108 historical blobs checked against generated local credentials and token/private-key patterns; excluded runtime/data paths absent.
+- Published source to the authorized [public repository](https://github.com/Shozab-110/restaurantflow); verified remote `main` matches commit `fba95a8`.
+- First hosted [CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39274706348): all 29 test assertions passed in 16.056 seconds, but test-database teardown failed because worker threads retained healthy connections. Fixed the concurrency tests to close each thread's connections explicitly in `finally`; rerun pending.
+- Enabled GitHub private vulnerability reporting. Generated disposable CI secrets are now masked in runner output.
