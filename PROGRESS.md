@@ -11,6 +11,7 @@ Updated: 19 October 2026 (Asia/Karachi).
 - Generated local-only password: ignored **`.local/demo-access.txt`**. No production credentials are committed.
 - Restart on Windows: `./scripts/start.ps1`, or start PostgreSQL with `.venv/Scripts/python.exe scripts/local_postgres.py start` and Django with `.venv/Scripts/python.exe manage.py runserver 127.0.0.1:8000 --noreload`.
 - Development server PID/logs: `.local/server.pid`, `.local/server.log`, `.local/server-error.log`.
+- Local database viewer: **http://127.0.0.1:5050/** (bundled pgAdmin desktop mode, loopback only). Registered connection: `RestaurantFlow - Read only`; it uses the `restaurantflow_viewer` PostgreSQL role with SELECT access to business/staff tables and no write privileges. Viewer configuration/credentials remain ignored under `.local/pgadmin/`. pgAdmin metadata is separate from the application's PostgreSQL data.
 
 ## Completed functionality
 
