@@ -2,6 +2,8 @@
 
 ## Before deployment
 
+If this VPS already runs ERPNext or another application, use the [cohosting guide](COHOSTING.md). The base HTTPS profile claims ports 80/443; do not start it over existing listeners.
+
 Provision Ubuntu with Docker Engine and Compose v2. Configure DNS to the VPS. Keep ports 80/443 available to the reverse proxy; the default app port binds to VPS loopback and PostgreSQL has no published port. Use a dedicated deployment directory and restrict `.env` to the service administrator (`chmod 600 .env`).
 
 Copy `.env.example` to `.env`. Set a unique random 60+ character Django secret and a strong PostgreSQL password, `DJANGO_DEBUG=false`, actual `DJANGO_ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS=https://your-domain`, `DJANGO_SECURE_SSL_REDIRECT=true`, `TRUST_PROXY_HEADERS=true`, and `RESTAURANT_DOMAIN=your-domain`. Never use wildcard hosts or local/demo credentials in production.

@@ -116,6 +116,7 @@ See [Testing](docs/TESTING.md) for requirements, frontend tests, and production 
 | [Findings and solutions](docs/FINDINGS_AND_SOLUTIONS.md) | Problems encountered and verified fixes |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Login, Docker, database, assets, business-rule errors |
 | [Deployment](docs/DEPLOYMENT.md) | Ubuntu, HTTPS, secrets, health, backup and restore |
+| [Cohosting](docs/COHOSTING.md) | Isolated deployment beside an existing ERP, IP HTTPS, protected ports and database roles |
 | [Screenshots](docs/SCREENSHOTS.md) | Actual capture checklist and current visual QA limits |
 | [Progress](PROGRESS.md) | Completed work, test evidence, pending acceptance |
 
@@ -123,7 +124,7 @@ The banner is a project illustration. Browser screenshot capture was unavailable
 
 ## Scope and remaining work
 
-- One restaurant per installation. Inventory, purchasing, formal cash-drawer shifts, split checks, table transfers, offline mode, and dispatch integrations are future work.
+- One restaurant per installation. Inventory, purchasing, formal cash-drawer shifts, split checks, table transfers, independent offline device queues/synchronization, and dispatch integrations are future work. Laptop-hosted offline LAN use is supported.
 - Closed orders are immutable. Post-close accounting adjustments need a controlled external process in this MVP.
 - Order-wide tax/service apply to the discounted subtotal with half-up rounding; no item-specific tax regimes, inclusive pricing, or currency conversion.
 - HTML printing and browser Save as PDF are supported; dedicated PDF generation and kitchen sound alerts are deferred.

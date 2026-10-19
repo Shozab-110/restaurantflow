@@ -86,7 +86,7 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 
 ## Explicit MVP limitations / deferred features
 
-- Single restaurant per installation. No inventory, purchasing, multi-tenant billing, split checks, formal cash-drawer shifts, table transfers, offline mode, or delivery dispatch integration.
+- Single restaurant per installation. No inventory, purchasing, multi-tenant billing, split checks, formal cash-drawer shifts, table transfers, independent offline device queues/synchronization, or delivery dispatch integration. Laptop-hosted offline LAN use is supported.
 - Payment/refund entries are manual records, not gateway integrations. Money must actually be returned before confirming a refund.
 - Closed orders are immutable; post-close accounting corrections require a controlled external process in this MVP.
 - Order-wide exclusive tax/service on discounted subtotal; no item-specific tax regimes, inclusive pricing, or exchange-rate conversion. Currency uses two decimal places.
@@ -129,3 +129,14 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Real LAN-address verification passed: owner session, 17 endpoints and 8 assets over the laptop Wi-Fi address on port 8001. Server listens on all IPv4 interfaces; PostgreSQL remains loopback-only.
 - Windows UAC elevation was canceled by the user. No firewall exception was installed; do not retry elevation automatically. Exact next action: when ready, run `Enable LAN Access.cmd` and approve it, then connect a phone/tablet on the same network and test login/kitchen polling.
 - Seven final setup/launcher tests and all 54 documentation links passed. Hosted CI pending; no physical phone/tablet connection or literal Wi-Fi-off device session is claimed.
+- Full updated local PostgreSQL suite passed: 30 tests in 102.376 seconds, including the offline workflow/resource regression. Offline-change CI is queued on GitHub; no hosted result is claimed for that commit yet.
+
+## Shared VPS deployment preparation — 2026-10-19
+
+- Owner requested use of an existing Ubuntu VPS while preserving its ERPNext installation. A password-only, read-only SSH inspection completed; no persistent SSH key was added. Automatic approval review rejected persistent root-key installation; the safer password-only method was used instead.
+- Audit: Ubuntu 24.04, approximately 8 GiB RAM with substantial free memory, approximately 85 GiB disk free; native ERPNext/nginx/MariaDB/Redis remain running. HTTP 80 and ERP backend 8000 are occupied; HTTPS 443 is free; Docker is not installed.
+- Prepared a dedicated cohost Compose file that publishes only HTTPS 443; PostgreSQL/backend stay internal, resource limits preserve capacity, and separate migration/runtime credentials enforce a restricted web database account.
+- Verified the official Caddy 2.11.7 release and current Let's Encrypt public-IP/short-lived certificate support. Prepared IP-based TLS-ALPN issuance without claiming HTTP 80, and configurable distinct application cookie names.
+- Eight local configuration/model tests passed. A disposable PostgreSQL integration check verified migration/static initialization, runtime data writes/demo seeding, and absence of superuser/CREATEDB/CREATEROLE/schema CREATE privileges; its temporary database and role were removed.
+- Guarded first-install script is prepared with ERP health/nginx fingerprint checks, no existing-package upgrades/removals, no ERP/nginx restart, exact source pinning, separate files/volumes, and trusted TLS verification.
+- Pending: reviewed source publication, password-only installer execution, actual certificate/app logins, production checks and before/after ERPNext verification. No VPS deployment success is claimed yet.
