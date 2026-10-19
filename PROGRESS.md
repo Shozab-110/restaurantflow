@@ -58,6 +58,9 @@ Updated: 19 October 2026 (Asia/Karachi).
 | Template compilation | PASS: all 22 templates |
 | `docker compose config --quiet` | PASS |
 | Git ignore inspection | PASS: environment, credentials, runtime/database data, venv, caches and editor settings excluded |
+| Generated-secret source scan | PASS: 85 source files checked; no generated Django/database/demo credentials present |
+
+Source and migration files are committed to a local Git repository. No remote is configured and nothing has been pushed.
 
 Tests cover all four requested workflows, authentication/deactivation/CSRF/throttling, permissions/isolation, frontend administration, table conflicts, Decimal totals, snapshots, kitchen transitions, additional tickets, partial/retried/concurrent payments, refunds/cancellation, upload validation, reporting reconciliation, currencies, password changes, demo idempotency, and primary forms/pages.
 

@@ -108,6 +108,8 @@ See [operations and accounting rules](docs/OPERATIONS.md) for detailed behavior.
 
 ## Testing and asset development
 
+Executed build verification: **29 PostgreSQL tests and 5 POS DOM interaction tests passed**, with additional focused authentication/page regressions. Normal and production security checks, migration consistency, real HTTP owner login/17 endpoints/8 assets, and production WhiteNoise assets passed. Browser screenshot/layout and Docker/HTTPS runtime verification remain environment-blocked; exact details and next actions are in [PROGRESS.md](PROGRESS.md).
+
 The test database uses PostgreSQL. The test user needs `CREATEDB` on a **development/test server**, not on a production application role.
 
 ```bash
