@@ -252,6 +252,44 @@ class WorkflowTests(Fixtures, TestCase):
         self.client.force_login(self.owner)
         self.client.post(reverse('staff_edit',args=[self.waiter.pk]),{'username':self.waiter.username,'role':'Waiter','password':PASSWORD,'is_active':'on'})
         self.waiter.refresh_from_db();self.assertTrue(self.waiter.check_password(PASSWORD))
+    def test_dine_in_and_runtime_assets_without_internet_connections(self):
+        from html.parser import HTMLParser
+        from pathlib import Path
+        import re
+        from unittest.mock import patch
+        from urllib.parse import urlsplit
+        from django.contrib.staticfiles import finders
+        class Resources(HTMLParser):
+            def __init__(self):
+                super().__init__();self.urls=[]
+            def handle_starttag(self, tag, attrs):
+                attributes=dict(attrs)
+                if tag in ['script','img'] and attributes.get('src'):
+                    self.urls.append(attributes['src'])
+                if tag=='link' and attributes.get('rel') in ['stylesheet','icon','preload','modulepreload']:
+                    self.urls.append(attributes.get('href',''))
+                for name in ['hx-get','hx-post','action']:
+                    if attributes.get(name):self.urls.append(attributes[name])
+        with patch('socket.create_connection', side_effect=AssertionError('Internet connection attempted')), \
+                patch('socket.socket.connect', side_effect=AssertionError('Internet connection attempted')):
+            self.test_frontend_dine_in_end_to_end()
+            self.client.force_login(self.owner)
+            assets=set()
+            for url in ['/','/pos/','/kitchen/','/tables/','/reports/','/orders/','/payments/','/settings/','/login/']:
+                response=(Client() if url=='/login/' else self.client).get(url)
+                self.assertEqual(response.status_code,200,url)
+                resources=Resources();resources.feed(response.content.decode())
+                for resource in resources.urls:
+                    parsed=urlsplit(resource)
+                    self.assertFalse(parsed.scheme or parsed.netloc, f'External runtime resource: {resource}')
+                    if parsed.path.startswith('/static/'):assets.add(parsed.path.removeprefix('/static/'))
+            self.assertGreaterEqual(len(assets),8)
+            for asset in assets:
+                path=finders.find(asset)
+                self.assertIsNotNone(path, f'Missing local asset: {asset}')
+                if asset.endswith('.css'):
+                    css=Path(path).read_text(encoding='utf-8')
+                    self.assertIsNone(re.search(r'(?:url\(\s*[\'\"]?|@import\s*[\'\"])(?:https?:)?//',css))
     def test_reporting_does_not_mix_currencies(self):
         order=self.new_order();self.ready(order);self.pay(order);services.fulfill_order(self.waiter,order.pk)
         config=RestaurantSettings.load();config.currency='USD';config.save()

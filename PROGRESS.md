@@ -118,3 +118,14 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Linux Docker verification passed: multi-stage image built; init completed migrations/roles/static collection; PostgreSQL and Gunicorn became healthy; `/health/` returned PostgreSQL `ok`; `/login/` returned success; initial owner creation and in-container deployment checks passed. CI containers shut down successfully.
 - Public README/banner were fetched successfully without authentication. Remaining acceptance concerns are browser/tablet/screenshots, physical printer, and the actual production HTTPS/backup/privilege/load configuration described above.
 - Final follow-up is documentation-only; validated relative links locally and retained the successful application CI evidence rather than rerunning unchanged application tests.
+
+## Offline multi-device demonstration — 2026-10-19
+
+- Added `Start Offline Demo.cmd` / `scripts/demo_server.py`: local address discovery, explicit allowed hosts/CSRF origins, no `.env` rewrite, portable database startup, readiness check, duplicate detection, and separate port 8001.
+- Added `Enable LAN Access.cmd` / `scripts/enable_lan.ps1`: administrator-approved firewall rule restricted to the Python interpreter, TCP 8001, and local-subnet clients. PostgreSQL remains loopback-only.
+- Added offline/device/VPS guidance and a plain Git editing/commit/push guide; clarified that frontend business records are PostgreSQL data and are not pushed to GitHub.
+- Seven configuration/launcher tests passed; PowerShell firewall helper parsed successfully; launcher dry run discovered the laptop's private IPv4 addresses without contacting internet servers.
+- Offline regression passed: the full dine-in HTTP-client flow and runtime-asset inspection completed with Python socket connections blocked (1 test, 13.279 seconds).
+- Real LAN-address verification passed: owner session, 17 endpoints and 8 assets over the laptop Wi-Fi address on port 8001. Server listens on all IPv4 interfaces; PostgreSQL remains loopback-only.
+- Windows UAC elevation was canceled by the user. No firewall exception was installed; do not retry elevation automatically. Exact next action: when ready, run `Enable LAN Access.cmd` and approve it, then connect a phone/tablet on the same network and test login/kitchen polling.
+- Seven final setup/launcher tests and all 54 documentation links passed. Hosted CI pending; no physical phone/tablet connection or literal Wi-Fi-off device session is claimed.

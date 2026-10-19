@@ -42,6 +42,8 @@ PostgreSQL stays inside the Docker network and stores records in a persistent vo
 
 ## Follow an order
 
+For an **internet-free, multi-device demo**, use [Offline laptop + phones/tablets](docs/OFFLINE_DEMO.md). The original Windows checkout includes **Start Offline Demo.cmd** and a scoped Windows LAN-access helper. For future code uploads, follow [Making changes and pushing](docs/GIT_WORKFLOW.md).
+
 1. **Dine-in:** waiter selects a table, adds items, and submits a kitchen ticket. Kitchen starts preparation and marks it ready. Waiter serves it; cashier prints the bill and records payment. Full settlement and fulfillment close the order and release the table.
 2. **Takeaway / delivery:** cashier creates an order, kitchen prepares it, cashier collects payment and confirms handoff. Delivery requires customer contact and address.
 3. **Cancellation:** an authorized manager or owner provides a reason. Any collected money must be returned manually and confirmed before the system records the cancellation and refunds together.
@@ -105,6 +107,8 @@ See [Testing](docs/TESTING.md) for requirements, frontend tests, and production 
 | Guide | Contents |
 |---|---|
 | [Getting started](docs/GETTING_STARTED.md) | Docker/native setup, owner account, demo data |
+| [Offline demo](docs/OFFLINE_DEMO.md) | Laptop server, phone/tablet login, local Wi-Fi, firewall, VPS comparison |
+| [Git workflow](docs/GIT_WORKFLOW.md) | Make changes, review, commit, push, and distinguish code from database records |
 | [Operations](docs/OPERATIONS.md) | Staff workflows and accounting rules |
 | [Database](docs/DATABASE.md) | Storage location, schema, PostgreSQL/pgAdmin access |
 | [Architecture](docs/ARCHITECTURE.md) | Application layers, invariants, workflow diagrams |

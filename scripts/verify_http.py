@@ -1,14 +1,26 @@
 """Read-only HTTP verification of the running local demo, including real session login."""
 import http.cookiejar
+import argparse
+import ipaddress
 import re
 import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
 
-base='http://127.0.0.1:8000'
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--base-url',default='http://127.0.0.1:8000')
+base=parser.parse_args().base_url.rstrip('/')
+target=urllib.parse.urlsplit(base)
+try:
+    address=ipaddress.ip_address(target.hostname) if target.hostname!='localhost' else ipaddress.ip_address('127.0.0.1')
+    private_ranges=[ipaddress.ip_network(value) for value in ['10.0.0.0/8','172.16.0.0/12','192.168.0.0/16']]
+    assert target.scheme=='http' and not target.username and not target.password and not target.path and not target.query and not target.fragment
+    assert address.is_loopback or any(address in network for network in private_ranges)
+except (ValueError,AssertionError,TypeError):
+    parser.error('Use a loopback or private LAN HTTP base URL; this verifier must not send local demo credentials to a public server.')
 jar=http.cookiejar.CookieJar()
-client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+client=urllib.request.build_opener(urllib.request.ProxyHandler({}),urllib.request.HTTPCookieProcessor(jar))
 # Startup checks may run immediately after launching the development process.
 for attempt in range(30):
     try:
