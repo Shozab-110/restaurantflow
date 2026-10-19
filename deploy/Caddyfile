@@ -1,0 +1,18 @@
+{$RESTAURANT_DOMAIN} {
+    encode zstd gzip
+    request_body {
+        max_size 6MB
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy same-origin
+    }
+    handle_path /media/* {
+        root * /srv/media
+        header Content-Security-Policy "default-src 'none'; img-src 'self'"
+        file_server
+    }
+    handle {
+        reverse_proxy web:8000
+    }
+}
