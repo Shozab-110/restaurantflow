@@ -43,7 +43,7 @@ Validate the ERP bridge and RestaurantFlow locally before loading the shared pla
 
 ## Persistence and operational checks
 
-The audited native Caddy service uses `--resume`, so API changes persist in its autosaved configuration. An empty/global-only `/etc/caddy/Caddyfile` is not the live routing source in this setup. A controller was observed comparing its managed 443 route list and replacing the whole configuration when a foreign route was appended there. The separate 8443 listener avoids changing that managed list. A manual Caddyfile reload or a future controller whole-config replacement can still remove added servers; coordinate configuration ownership for future changes and do not introduce a competing overwrite loop.
+The audited native Caddy service uses `--resume`, so API changes persist in its autosaved configuration. An empty/global-only `/etc/caddy/Caddyfile` is not the live routing source in this setup. A controller was observed comparing its managed 443 route list and replacing the whole configuration when a foreign route was appended there. The separate 8443 listener avoids changing that managed list. A manual Caddyfile reload or a future controller whole-config replacement can still remove added servers; coordinate configuration ownership for future changes and do not introduce a competing overwrite loop. If an ERP upgrade changes its original nginx site, review and regenerate the private bridge copy, validate it and reload only the bridge service.
 
 Verify all of the following after applying and again after the controller's polling interval:
 

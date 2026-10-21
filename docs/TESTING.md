@@ -1,5 +1,13 @@
 # Testing and verification evidence
 
+## Latest verified application — 21 October 2026
+
+Application commit `13580e7` passed [Linux CI](https://github.com/Shozab-110/restaurantflow/actions/runs/39611389128): **31 PostgreSQL tests** in 12.636 seconds, **12 configuration/planner tests**, and **5 POS DOM tests** (48 total), plus migration/static/production checks and the complete Docker stack. The full local PostgreSQL rerun passed in 99.310 seconds.
+
+The live shared VPS then passed trusted HTTPS, all five role logins and permission denials, 17 owner routes and 8 assets, owner category/menu/price/staff administration, account deactivation, real dine-in and takeaway kitchen/partial/retried/final payment workflows, receipt/table release, manager cancellation/retry, and CSV. Persisted records, restricted runtime privileges and report reconciliation were checked independently on the server. A fresh backup restored successfully into a separate disposable database; its tested order states/totals matched and the temporary database was removed. A SHA-256-verified copy was recovered privately to the laptop.
+
+Shared routing remained unchanged through multiple external-controller polls after separating RestaurantFlow onto 8443. Existing ERP login and four referenced local assets returned 200; its original nginx file fingerprints were preserved. Authenticated ERP business transactions, a host reboot, future certificate renewal, physical tablets/printers, load capacity and scheduled off-host backup operation are not claimed by these checks. Earlier build evidence below is retained as history.
+
 ## Evidence from the implemented build
 
 The original Windows/Python 3.12.2/PostgreSQL 17.11 build completed:

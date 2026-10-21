@@ -1,6 +1,14 @@
 # RestaurantFlow progress and verification
 
-Updated: 19 October 2026 (Asia/Karachi).
+Updated: 21 October 2026 (Asia/Karachi).
+
+## Current delivery status
+
+**Running, tested shared-VPS demonstration.** Application commit `13580e7` is deployed behind trusted IP HTTPS on port 8443 using `docker-compose.shared.yml`. ERP HTTP/login and four local assets are restored; its original nginx files and existing backend/database services were preserved. Exact access details are in the private ignored handover, never in Git.
+
+All 48 hosted automated tests passed (31 PostgreSQL, 12 configuration/planner, 5 DOM). Actual public HTTPS acceptance passed all four requested workflows, role logins/denials, administration, receipts/reports, duplicate dispatch/payments and table release. Persisted transaction states/totals, report reconciliation and restricted runtime database grants were verified. The routing plan remained unchanged for over 14 minutes across controller polls. A fresh 136,370-byte backup restored into a separate test database, financial/status rows matched, and a hash-verified private copy was recovered to the laptop.
+
+This is not certified production-ready: physical browser/tablet/printer checks, expected-load checks, future certificate renewal and scheduled off-host backup/retention operations remain. Future whole-config changes by the external proxy controller must preserve the additional listeners; see `docs/SHARED_PROXY.md`. No authenticated ERP transaction or host reboot test was performed. Local offline phone testing remains pending the firewall approval previously canceled by the user.
 
 ## Working local application
 
@@ -44,7 +52,8 @@ Updated: 19 October 2026 (Asia/Karachi).
 | `showmigrations operations` | PASS; `0001_initial` applied |
 | `manage.py check` | PASS; zero issues |
 | Production `check --deploy --fail-level WARNING` | PASS; zero issues, DEBUG=false |
-| Full PostgreSQL acceptance suite | **PASS: 29 tests in 163.635 seconds** |
+| Full PostgreSQL acceptance suite | **PASS: latest 31 tests in 99.310 seconds locally; 12.636 seconds in hosted CI** |
+| Configuration / shared proxy preservation | **PASS: 12 tests** |
 | Final primary-page/form regression | PASS; 1 focused test after sorting/wording changes |
 | Final throttling regression | PASS; 1 focused test verifies another staff account can still log in from the same IP |
 | POS DOM interaction tests | **PASS: 5 tests**, actual rendered HTML |
@@ -81,8 +90,8 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 ## Blocked verification and exact next actions
 
 1. **Browser layout/tablet interaction/screenshots/physical receipt printing:** browser inventory is empty; both IAB and Chrome return `Browser is not available`. Connect a supported browser, open the local URL, run the session in `docs/OPERATIONS.md`, inspect desktop/tablet layouts, and capture actual screenshots for README. No screenshots were fabricated.
-2. **Local Windows Docker / target Caddy HTTPS:** the original Docker Desktop engine remains unavailable / returns HTTP 500. The complete application container stack has now passed on GitHub's Linux runner (evidence below). Caddy with actual DNS/TLS remains unverified: on the intended host run `docker compose --profile https up -d --build`, then the health/HTTPS checks in `docs/DEPLOYMENT.md`. Docker account sign-in is normally optional and is not needed for the current native local app.
-3. **Production operational acceptance:** configure target DNS/TLS, restricted runtime database credentials, external backups, restore rehearsal, expected-load checks, and a real receipt printer. Local security checks do not certify a production deployment.
+2. **Local Windows Docker:** the original Docker Desktop engine remains unavailable / returns HTTP 500. Linux CI and actual VPS Docker/HTTPS checks now pass. Use native PostgreSQL locally, or repair/start the local Docker engine before selecting local full-Docker startup. On the shared VPS use only the reviewed `docker-compose.shared.yml`; do not start the base HTTPS profile over existing listeners.
+3. **Production operational acceptance:** trusted HTTPS, restricted runtime credentials and a private off-host backup/isolated restore passed. Establish scheduled backup retention, monitor renewals, verify expected load and a real receipt printer, and coordinate future external proxy-controller changes. Demo/security checks do not certify all production operations.
 
 ## Explicit MVP limitations / deferred features
 
@@ -97,7 +106,7 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 
 ## Deployment status
 
-**Usable, tested local MVP; not certified production-ready.** Outstanding checks and exact next actions are stated above. See `README.md`, `docs/OPERATIONS.md`, and `docs/DEPLOYMENT.md`.
+**Usable, tested local MVP and shared-VPS demonstration; not certified production-ready.** Outstanding checks and exact next actions are stated above. See `README.md`, `docs/OPERATIONS.md`, `docs/DEPLOYMENT.md` and `docs/SHARED_PROXY.md`.
 
 ## Public repository preparation — 2026-10-19
 
@@ -165,3 +174,7 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Revised native listener applied at 13:42:51 UTC with the managed 443 server unchanged. External trusted HTTPS on 8443 and ERP HTTP passed. All five staff role logins, secure cookies, 17 owner endpoints, 8 assets, CSV, server-side permission denials, owner menu/price/category/staff creation and staff deactivation passed through public HTTPS.
 - Live POS testing exposed a real nullable-customer rendering defect after saving an order-level note. Reproduced it locally for dine-in, takeaway and delivery in a new regression (three failing subcases), then replaced the eager template fallback with guarded branches. Original saved transaction remains preserved; verification is continuing before any completion claim.
 - Fixed application verification: all 31 local PostgreSQL workflow/concurrency tests passed in 99.310 seconds, all 12 configuration/planner tests passed, and all 61 documentation links passed. At 13:48 UTC the revised shared plan was unchanged after the controller's next route-list poll, with no follow-up `/load` observed. Application rollout and complete live order retest remain pending.
+- Published/deployed exact application commit `13580e7`; [hosted CI passed](https://github.com/Shozab-110/restaurantflow/actions/runs/39611389128): 31 PostgreSQL tests in 12.636 seconds, 12 configuration/planner tests, 5 DOM tests and complete Docker/security checks. Rebuilt/initialized only RestaurantFlow, retained a rollback image and fresh data/environment backup, and passed on-server `check --deploy --fail-level WARNING` and migration drift checks.
+- Complete live HTTPS retest passed workflows A–D, all roles/denials, owner CRUD/price/staff deactivation, 17 routes, 8 assets, CSV and receipts. Closed synthetic dine-in/takeaway orders retained exactly two collections each despite retries; kitchen dispatch stayed single; table released; manager cancellation preserved exactly one audit event. Failed test order was canceled with a reason and retained, and synthetic menu/category/staff were deactivated.
+- At 13:56:59 UTC shared routing still matched the plan, original nginx files matched their fingerprints, DB/backend ports were unpublished and only the proxy's localhost port was exposed. Runtime flags confirmed no superuser/CREATEDB/CREATEROLE/replication/BYPASSRLS/schema CREATE privileges; report totals reconciled.
+- Final PostgreSQL backup/restore rehearsal passed in a disposable `rf_restorecheck_...` database; selected order statuses/financial totals matched and only that temporary database was removed. A 136,370-byte archive was copied over SSH to the account-restricted ignored local backup folder, with SHA-256 verified. Existing ERP login/assets and RestaurantFlow trusted certificate/health passed external checks. No scheduled backup job, reboot, physical browser/device/printer or load test is claimed.

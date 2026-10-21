@@ -86,11 +86,11 @@ Learn [where the database lives and how to view tables](docs/DATABASE.md), or in
 
 ## Verification
 
-The local acceptance run passed **29 PostgreSQL workflow/security/concurrency tests**, **5 POS DOM interaction tests**, Django configuration/deployment checks, and authenticated HTTP route/static-asset checks. Four additional configuration-helper tests cover secret generation, non-overwriting setup, and special-character handling. Exact evidence and open checks are recorded in [PROGRESS.md](PROGRESS.md).
+The latest local acceptance run passed **31 PostgreSQL workflow/security/concurrency tests** and **12 configuration/planner tests**. Live VPS checks also passed real staff logins, owner administration, dine-in/takeaway kitchen and payment workflows, cancellation, receipts, CSV, database privileges and an isolated backup restore. Exact evidence and remaining device/operational checks are recorded in [PROGRESS.md](PROGRESS.md).
 
 GitHub Actions runs locked dependency installation, frontend compilation, PostgreSQL tests, POS interaction checks, production settings checks, and a Docker stack smoke test on Linux. Its actual result is linked by the badge above; a workflow file alone is not proof of a passing run.
 
-The [verified Linux CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39284932897) passed all **43 automated tests** (30 PostgreSQL, 8 configuration/launcher/Compose, 5 POS DOM), built the Docker image, started PostgreSQL/Gunicorn, and verified health, login, owner initialization, and container production checks.
+The [verified Linux CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39611389128) on application commit `13580e7` passed all **48 automated tests** (31 PostgreSQL, 12 configuration/planner, 5 POS DOM), built the Docker image, started PostgreSQL/Gunicorn, and verified health, login, owner initialization, and container production checks.
 
 ```bash
 python manage.py check
@@ -117,6 +117,7 @@ See [Testing](docs/TESTING.md) for requirements, frontend tests, and production 
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Login, Docker, database, assets, business-rule errors |
 | [Deployment](docs/DEPLOYMENT.md) | Ubuntu, HTTPS, secrets, health, backup and restore |
 | [Cohosting](docs/COHOSTING.md) | Isolated deployment beside an existing ERP, IP HTTPS, protected ports and database roles |
+| [Existing shared proxy](docs/SHARED_PROXY.md) | Keep a managed 443 service intact, use HTTPS 8443, preserve ERP routing, and operate the correct Compose stack |
 | [Screenshots](docs/SCREENSHOTS.md) | Actual capture checklist and current visual QA limits |
 | [Progress](PROGRESS.md) | Completed work, test evidence, pending acceptance |
 

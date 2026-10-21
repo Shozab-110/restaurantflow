@@ -28,6 +28,7 @@ This log distinguishes application defects, setup problems, and verification tha
 | First Linux CI run passed all 29 tests but could not drop its test database | Thread workers used `close_old_connections()`, which retains healthy persistent connections until their lifetime expires | Explicitly close each worker thread's connections in its `finally` block; retain the normal application connection lifetime | Both local concurrency tests passed with fresh teardown; [full hosted rerun passed](https://github.com/Shozab-110/restaurantflow/actions/runs/39275185992) |
 | Original host could not verify the Docker image | Windows Docker engine was unavailable | Added a Linux GitHub Actions image/stack smoke test using disposable databases/secrets | [Verified CI](https://github.com/Shozab-110/restaurantflow/actions/runs/39275185992): image build, initialization, DB/Gunicorn health, HTTP login, owner creation and production check passed |
 | Guest order with notes saved successfully but its detail page returned 500 | A Django `default` filter eagerly resolved `order.customer.name` even when the optional customer relationship was empty | Guard the guest-name fallback with explicit template branches; preserve order/notes | Regression reproduced all three order types before the fix; local/hosted/live rerun results are recorded in `PROGRESS.md` |
+| Added shared proxy routes disappeared shortly after successful HTTPS checks | An external controller compared its managed 443 routes and replaced the entire native Caddy configuration when an extra route appeared there | Preserve that entire managed server; use a separate native HTTPS 8443 listener, private RestaurantFlow proxy and ERP bridge; no competing rewrite timer | Live routes persisted across multiple controller polls; trusted HTTPS, original domain response and ERP HTTP/assets verified; `docs/SHARED_PROXY.md` |
 
 ## Open verification items
 
@@ -36,7 +37,7 @@ This log distinguishes application defects, setup problems, and verification tha
 | Desktop/tablet browser rendering and screenshots | HTTP and DOM checks pass; the original automation environment exposed no browser surface | Follow `SCREENSHOTS.md` using an available browser and synthetic demonstration data |
 | Physical receipt printer | Print-friendly HTML/CSS exists and receipt routes are tested | Print on the intended device/paper size and verify totals, margins, cutter behavior and legibility |
 | Local Docker Desktop runtime | The original Windows engine returned connection/API errors; the full container stack passed on the Linux CI runner | Use the native PostgreSQL setup or repair/start the local Docker engine before choosing local Docker startup |
-| Real HTTPS/VPS deployment | Caddy/Gunicorn/WhiteNoise configuration and production Django checks exist | Deploy with DNS/TLS, a restricted runtime DB role, health probes and a restore rehearsal per `DEPLOYMENT.md` |
+| Operational production acceptance | Live HTTPS, restricted runtime grants, critical public workflows, private off-host backup copy and an isolated restore passed | Establish scheduled backup/retention ownership, monitor renewals, test expected load and coordinate future shared-controller configuration changes per `SHARED_PROXY.md` |
 
 ## Deliberate product limitations
 
