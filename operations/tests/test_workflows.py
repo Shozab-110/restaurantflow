@@ -244,6 +244,18 @@ class WorkflowTests(Fixtures, TestCase):
         self.client.post(reverse('order_action',args=[order.pk,'payment']),{'request_key':uuid.uuid4(),'amount':'214.00','method':'cash','reference':''})
         order.refresh_from_db();self.table.refresh_from_db()
         self.assertEqual(order.status,'closed');self.assertEqual(self.table.status,'available')
+    def test_order_detail_with_notes_or_guest_name_without_customer_record(self):
+        self.client.force_login(self.cashier)
+        for mode, details in [('dine_in', {}), ('takeaway', {}), ('delivery', {
+                'customer_name': 'Walk-in Guest', 'customer_phone': '03001234567',
+                'delivery_address': '42 Demo Road'})]:
+            with self.subTest(mode=mode):
+                order=self.new_order(self.cashier, mode=mode, notes='Allergy: no peanuts', **details)
+                self.assertIsNone(order.customer_id)
+                response=self.client.get(reverse('order_detail', args=[order.pk]))
+                self.assertContains(response, 'Allergy: no peanuts')
+                if mode == 'delivery':
+                    self.assertContains(response, 'Walk-in Guest')
     def test_password_change_and_staff_reset(self):
         self.client.force_login(self.waiter)
         response=self.client.post('/password/change/',{'old_password':PASSWORD,'new_password1':'A-Different-Strong!5512','new_password2':'A-Different-Strong!5512'})
