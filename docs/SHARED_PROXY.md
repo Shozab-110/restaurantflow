@@ -6,7 +6,8 @@ Use this layout when a host Caddy already owns ports 80/443 for other applicatio
 
 | Listener | Purpose |
 |---|---|
-| Host Caddy, public 443 | Existing domain routes plus RestaurantFlow's explicit HTTPS IP route |
+| Host Caddy, public 443 | Existing domain routes, kept unchanged |
+| Host Caddy, public 8443 | Separate RestaurantFlow HTTPS IP listener |
 | Host Caddy, public 80 | Explicit existing ERP IP route; domain HTTPS redirects still work |
 | `127.0.0.1:18080` | RestaurantFlow container proxy, including uploaded media |
 | `127.0.0.1:18081` | Optional, separate nginx ERP bridge using a copy of its audited site configuration |
@@ -34,7 +35,7 @@ python3 deploy/shared_proxy.py --current-json caddy-before.json \
 caddy validate --config caddy-planned.json
 ```
 
-This focused planner accepts one simple `:443` server. It preserves unrelated explicit domain routes and their certificate policies, adds an IP-specific short-lived ACME policy, and prepares an HTTP ERP route. Catch-all/wildcard routing, existing IP ownership, custom TLS policies and explicit HTTP listeners require manual review; the tool refuses to guess.
+This focused planner accepts one simple `:443` server and keeps that entire server unchanged. It adds a separate `:8443` HTTPS server, an IP-specific short-lived ACME policy, and an HTTP ERP route. Existing explicit HTTP listeners, occupied 8443 listeners or conflicting ownership of its named servers require manual review; the tool refuses to guess. The RestaurantFlow URL is `https://YOUR_VPS_IP:8443/`. Permit 8443 through the host/provider firewall; keep certificate validation reachable on 443. The same native Caddy process handles TLS-ALPN challenges and both TLS listeners.
 
 If the old ERP nginx service was stopped by a later proxy installation, preserve its original files. The `nginx_bridge()` helper prepares a separate config from an audited HTTP-only site, changing only its listeners to localhost and adding its own PID/log files. Test it with `nginx -t -c ABSOLUTE_BRIDGE_CONFIG`, then run it under a separate `restaurantflow-erp-bridge.service`. Its original asset rules, Frappe site header, protected downloads and WebSocket routing remain in that private copy. Do not change the ERP database, original nginx files or running Gunicorn/MariaDB/Redis processes.
 
@@ -42,7 +43,7 @@ Validate the ERP bridge and RestaurantFlow locally before loading the shared pla
 
 ## Persistence and operational checks
 
-The audited native Caddy service uses `--resume`, so API changes persist in its autosaved configuration. An empty/global-only `/etc/caddy/Caddyfile` is not the live routing source in this setup. A manual Caddyfile reload or an external controller's whole-config replacement can remove added routes. Configure that controller to preserve the additions; do not introduce a competing overwrite loop.
+The audited native Caddy service uses `--resume`, so API changes persist in its autosaved configuration. An empty/global-only `/etc/caddy/Caddyfile` is not the live routing source in this setup. A controller was observed comparing its managed 443 route list and replacing the whole configuration when a foreign route was appended there. The separate 8443 listener avoids changing that managed list. A manual Caddyfile reload or a future controller whole-config replacement can still remove added servers; coordinate configuration ownership for future changes and do not introduce a competing overwrite loop.
 
 Verify all of the following after applying and again after the controller's polling interval:
 

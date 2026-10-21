@@ -16,28 +16,20 @@ def merge_routes(current, public_ip):
     candidates = [server for server in servers.values() if server.get('listen') == [':443']]
     if len(candidates) != 1:
         raise ValueError('Expected one shared :443 server; inspect this proxy manually.')
-    https = candidates[0]
-    routes = https.setdefault('routes', [])
     desired = {'@id': 'restaurantflow-web', 'match': [{'host': [address]}],
                'handle': [{'handler': 'reverse_proxy', 'upstreams': [{'dial': '127.0.0.1:18080'}]}],
                'terminal': True}
-    matches = [route for route in routes if route.get('@id') == 'restaurantflow-web']
-    if matches and matches != [desired]:
-        raise ValueError('Existing RestaurantFlow route differs; refusing to overwrite it.')
-    if not matches:
-        for route in routes:
-            for matcher in route.get('match', []):
-                hosts = matcher.get('host', [])
-                if not hosts or any(host == address or '*' in host for host in hosts):
-                    raise ValueError('A catch-all, wildcard or existing IP route needs manual review.')
-            if not route.get('match'):
-                raise ValueError('An existing catch-all route needs manual review.')
-        routes.append(desired)
-    policies = https.get('tls_connection_policies')
-    expected_tls = [{'default_sni': address}]
-    if policies and policies != expected_tls:
-        raise ValueError('Existing TLS connection policies need manual review.')
-    https['tls_connection_policies'] = expected_tls
+    # A controller can compare its exact :443 route list and replace the whole
+    # config when another app appends a route there. Keep that entire server intact.
+    https = {'listen': [':8443'], 'routes': [desired],
+             'tls_connection_policies': [{'default_sni': address}]}
+    existing = servers.get('restaurantflow_https')
+    if existing and existing != https:
+        raise ValueError('Existing RestaurantFlow HTTPS server differs; refusing to replace it.')
+    if any(any(listener.endswith(':8443') for listener in server.get('listen', []))
+           for name, server in servers.items() if name != 'restaurantflow_https'):
+        raise ValueError('Port 8443 is already configured; inspect its owner.')
+    servers['restaurantflow_https'] = https
     erp_server = {'listen': [':80'], 'automatic_https': {'disable': True}, 'routes': [
         {'@id': 'restaurantflow-erp', 'match': [{'host': [address]}],
          'handle': [{'handler': 'reverse_proxy', 'upstreams': [{'dial': '127.0.0.1:18081'}]}],

@@ -19,18 +19,25 @@ class SharedProxyTests(unittest.TestCase):
         self.assertEqual(self.existing, before)
         self.assertEqual(merged['apps']['http']['servers']['shared']['routes'][0],
                          before['apps']['http']['servers']['shared']['routes'][0])
+        self.assertEqual(merged['apps']['http']['servers']['shared'],
+                         before['apps']['http']['servers']['shared'])
+        self.assertEqual(merged['apps']['http']['servers']['restaurantflow_https']['listen'], [':8443'])
         self.assertEqual(merged['apps']['tls']['automation']['policies'][1:],
                          before['apps']['tls']['automation']['policies'])
         self.assertEqual(merge_routes(merged, '192.0.2.10'), merged)
         self.assertEqual(merged['admin'], before['admin'])
 
-    def test_refuses_ambiguous_or_existing_ip_routing(self):
-        for change in [[], [{'host': ['192.0.2.10']}], [{'host': ['*.example.com']}]]:
+    def test_refuses_occupied_listeners_or_existing_server_ownership(self):
+        for change in [{'listen': [':8443']}, {'listen': [':80']}]:
             with self.subTest(change=change):
                 config = deepcopy(self.existing)
-                config['apps']['http']['servers']['shared']['routes'][0]['match'] = change
+                config['apps']['http']['servers']['other'] = change
                 with self.assertRaises(ValueError):
                     merge_routes(config, '192.0.2.10')
+        merged = merge_routes(self.existing, '192.0.2.10')
+        merged['apps']['http']['servers']['restaurantflow_https']['routes'] = []
+        with self.assertRaises(ValueError):
+            merge_routes(merged, '192.0.2.10')
 
     def test_bridge_preserves_site_assets_headers_and_websocket_rules(self):
         original = 'upstream backend { server 127.0.0.1:8000; }\nserver {\n listen 80;\n listen [::]:80;\n root /srv/erp/sites;\n location /assets { try_files $uri =404; }\n location /socket.io { proxy_pass http://backend; }\n proxy_set_header X-Frappe-Site-Name erp.example;\n}\n'
