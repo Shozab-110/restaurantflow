@@ -45,6 +45,10 @@ Validate the ERP bridge and RestaurantFlow locally before loading the shared pla
 
 The audited native Caddy service uses `--resume`, so API changes persist in its autosaved configuration. An empty/global-only `/etc/caddy/Caddyfile` is not the live routing source in this setup. A controller was observed comparing its managed 443 route list and replacing the whole configuration when a foreign route was appended there. The separate 8443 listener avoids changing that managed list. A manual Caddyfile reload or a future controller whole-config replacement can still remove added servers; coordinate configuration ownership for future changes and do not introduce a competing overwrite loop. If an ERP upgrade changes its original nginx site, review and regenerate the private bridge copy, validate it and reload only the bridge service.
 
+During the 21 October compact-theme update, a later whole-config replacement was actually observed: only the managed 443 server remained, and both the ERP IP route and RestaurantFlow 8443 listener had disappeared. The update guard stopped before app changes. The approved additive plan restored both routes with a private backup, validation and conditional API update; the managed 443 server was preserved exactly. No existing native service was restarted. The subsequent theme rollout kept the restored configuration unchanged.
+
+This makes external configuration ownership an open operational issue, rather than only a hypothetical risk. The exact next action is for the controller owner to preserve the two additional servers and IP certificate policy in its source configuration, or agree a separate proxy/listener ownership design. Do not disable that controller or install competing whole-config rewrite jobs. A short successful observation window does not prove the controller will retain these routes indefinitely.
+
 Verify all of the following after applying and again after the controller's polling interval:
 
 - Original domain HTTP redirects, trusted HTTPS and expected page responses.
