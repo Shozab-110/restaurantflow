@@ -23,6 +23,16 @@ Built for a single restaurant per installation. This is a working MVP with autom
 
 Payments and refunds are manually confirmed records. There is no live payment gateway. Normal business administration uses the application frontend; Django Admin is optional technical maintenance.
 
+## Application preview
+
+The compact interface uses smaller headings, tighter spacing, denser tables and a persistent POS cart. Touch controls stay larger on phones and tablets.
+
+![Dashboard with sales from the seeded demonstration database](docs/screenshots/dashboard.png)
+
+![POS with two items selected in the order cart](docs/screenshots/pos.png)
+
+Actual local Django-rendered demo fixtures captured in headless Chrome, not VPS screenshots. See [capture details and device verification limits](docs/SCREENSHOTS.md).
+
 ## Start with Docker
 
 Install Git, Python 3.12, and a running Docker Engine with Compose v2. Docker Desktop account sign-in is not required for the local application.
@@ -121,7 +131,7 @@ See [Testing](docs/TESTING.md) for requirements, frontend tests, and production 
 | [Screenshots](docs/SCREENSHOTS.md) | Actual capture checklist and current visual QA limits |
 | [Progress](PROGRESS.md) | Completed work, test evidence, pending acceptance |
 
-The banner is a project illustration. Browser screenshot capture was unavailable in the development environment, so no screenshots or visual verification results are fabricated.
+The banner is a project illustration. The application screenshots above use synthetic local demonstration records.
 
 ## Scope and remaining work
 

@@ -12,6 +12,15 @@ This is not certified production-ready: physical browser/tablet/printer checks, 
 
 ## Working local application
 
+### Compact theme update — verified locally; rollout pending
+
+- Shared design tokens, 208px sidebar, 54px header, 13px base text, 24px page headings, tighter cards/tables, shorter headings and responsive two-column forms.
+- POS product art is 80px on desktop, with a sticky cart and denser customer/order fields. Coarse-pointer controls retain at least 44px height; kitchen actions retain at least 48px. Existing print rules are preserved exactly.
+- Installed headless Chrome inspected actual authenticated Django-rendered local fixtures with local assets. Thirteen emulated page/viewport combinations passed: dashboard/POS/settings/orders at 1440px, kitchen at 1024px, POS at 768px, dashboard/settings/orders/tables/login/receipt at 390px, and login at 1366px.
+- Assertions verified exact viewport widths, no document horizontal overflow, coarse-pointer targets, kitchen action sizes, phone form stacking and selecting two POS products. Actual dashboard/POS screenshots with synthetic data are in `docs/screenshots/`. Polling was disabled only in the fixtures. This does not certify physical devices, live browser sessions or printers.
+- The same-data first desktop comparison reduced dashboard document height from 1,630px to 1,333px and stat cards from 165px to 131px. Final screenshots use a seven-day reporting range.
+- Final local checks passed: asset build, static collection, Django system check, 5 POS DOM tests, 68 documentation links and Git whitespace check. Receipt print rules match the previous source exactly. Local servers on ports 8000 and 8001 were restarted with the new templates. Hosted CI and the isolated VPS rollout are pending; password-only SSH preflight connected successfully.
+
 - URL: **http://127.0.0.1:8000/**
 - PostgreSQL 17.11: **127.0.0.1:5433**, password authentication, persistent data under ignored `.local/pgdata/`.
 - Python 3.12.2 / Django 5.2.18. No SQLite fallback was used.
@@ -89,7 +98,7 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 
 ## Blocked verification and exact next actions
 
-1. **Browser layout/tablet interaction/screenshots/physical receipt printing:** browser inventory is empty; both IAB and Chrome return `Browser is not available`. Connect a supported browser, open the local URL, run the session in `docs/OPERATIONS.md`, inspect desktop/tablet layouts, and capture actual screenshots for README. No screenshots were fabricated.
+1. **Physical device/live browser/printer acceptance:** headless Chrome layout checks and real fixture screenshots now pass; connected interactive browser inventory is still empty. On the intended devices, complete `docs/OPERATIONS.md`, verify live kitchen polling, focus/keyboard behavior and physical receipt output. Headless emulation is not a physical device test.
 2. **Local Windows Docker:** the original Docker Desktop engine remains unavailable / returns HTTP 500. Linux CI and actual VPS Docker/HTTPS checks now pass. Use native PostgreSQL locally, or repair/start the local Docker engine before selecting local full-Docker startup. On the shared VPS use only the reviewed `docker-compose.shared.yml`; do not start the base HTTPS profile over existing listeners.
 3. **Production operational acceptance:** trusted HTTPS, restricted runtime credentials and a private off-host backup/isolated restore passed. Establish scheduled backup retention, monitor renewals, verify expected load and a real receipt printer, and coordinate future external proxy-controller changes. Demo/security checks do not certify all production operations.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## Compact theme — 2026-10-21
+
+- Reduced shared navigation, header, card, form and table spacing; introduced consistent theme tokens and shorter page headings.
+- Added denser POS product cards, a sticky cart and responsive two-column forms.
+- Preserved large touch controls and kitchen actions, local assets and receipt print rules.
+- Inspected 13 browser viewport scenarios and added actual demo screenshots with explicit verification limits.
+
 ## 0.1.0 — 2026-10-19
 
 Initial tested local MVP.

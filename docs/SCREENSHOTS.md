@@ -1,8 +1,15 @@
 # Screenshot and device-verification guide
 
-The original automation environment did not provide a connected browser. The repository banner is an illustration, not a screenshot. HTTP/DOM test results do not prove visual layout. No fabricated application screenshots are included.
+The compact theme was inspected on 21 October 2026 using installed headless Chrome. The captures below are actual Django-rendered pages from a seeded development database, with the application's local CSS and JavaScript. The POS cart was populated through product-card clicks. They contain synthetic demonstration records.
 
-To add a real gallery, use a separate seeded demonstration database, open the app in an available browser, and capture:
+- [Dashboard, 1440px](screenshots/dashboard.png)
+- [POS, 1440px](screenshots/pos.png)
+
+These are rendered local HTML fixtures, not screenshots of the VPS. Kitchen polling was disabled in the fixtures. Viewport and coarse-pointer emulation verified 13 page/width combinations at 390, 768, 1024, 1366 and 1440px: no document overflow, 44px touch controls, 48px kitchen actions, phone form stacking and POS item selection. The screenshot banner remains a separate illustration.
+
+Physical device, networked browser interaction, live kitchen refresh and receipt-printer acceptance remain separate checks. The ignored local evidence is in `.local/theme-preview/verified-*.{png,json}`; see [PROGRESS.md](../PROGRESS.md).
+
+To extend the gallery, use a separate seeded demonstration database, open the app in an available browser, and capture:
 
 | Suggested filename | Page and scenario |
 |---|---|
