@@ -2,6 +2,8 @@
 
 Do not run the base Compose HTTPS profile blindly on a shared VPS: it publishes ports 80/443 and the native app port can conflict with an existing ERP backend. Inspect the host first and keep the existing application's databases, configuration, ports, and processes intact.
 
+If a host proxy now owns both public ports, use the [existing shared proxy layout](SHARED_PROXY.md). Do not stop that proxy or rerun the first-install script to force the original layout.
+
 ## Prepared deployment layout
 
 The cohost configuration is intended for an audited Ubuntu 24.04 server where an existing application uses HTTP port 80 and HTTPS port 443 is free:

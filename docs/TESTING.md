@@ -34,6 +34,8 @@ This verifies the application container stack on Linux. It does not verify a pub
 
 ## Run locally
 
+The current cohost/offline source commit `4bc211c` also passed [GitHub CI](https://github.com/Shozab-110/restaurantflow/actions/runs/39284932897): **30 PostgreSQL tests** in 10.098 seconds, **8 configuration/launcher/Compose tests**, and **5 POS DOM tests** (43 total), plus Docker and production checks. This confirms source/container checks; the actual shared VPS state needs its own verification after the interrupted deployment.
+
 Use an isolated development PostgreSQL server. Django creates `test_<POSTGRES_DB>` for the business suite; its test login needs CREATEDB. Keep that permission out of production runtime credentials.
 
 ```bash

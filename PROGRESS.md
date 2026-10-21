@@ -140,3 +140,22 @@ POS DOM tests cover cart quantities, exact integer tax/service previews, instruc
 - Eight local configuration/model tests passed. A disposable PostgreSQL integration check verified migration/static initialization, runtime data writes/demo seeding, and absence of superuser/CREATEDB/CREATEROLE/schema CREATE privileges; its temporary database and role were removed.
 - Guarded first-install script is prepared with ERP health/nginx fingerprint checks, no existing-package upgrades/removals, no ERP/nginx restart, exact source pinning, separate files/volumes, and trusted TLS verification.
 - Pending: reviewed source publication, password-only installer execution, actual certificate/app logins, production checks and before/after ERPNext verification. No VPS deployment success is claimed yet.
+
+## User-requested pause — 2026-10-19
+
+- User asked to continue tomorrow; no new deployment work is to be started until resumed.
+- The already authenticated password-only installer was in flight. Its latest inspected output showed Docker/containerd/Compose package installation and package triggers. No final deployment/HTTPS result is claimed.
+- Safe resume checkpoint saved in ignored `.local/RESUME_VPS.md`. First inspect `.local/vps-deploy-status.json` and the sanitized deployment log; do not rerun a first-install over a partial deployment.
+- ERPNext preservation remains mandatory. Verify current ERP and RestaurantFlow state before any further changes. Root passwords remain outside chat and files.
+- Final pause snapshot: SSH ended with exit code 255; image build and Caddy configuration validation had completed, but no final deployment result was received. Remote container/HTTPS state remains unverified and must be inspected read-only on resume. No retry was initiated after the pause request.
+
+## Resumed — 2026-10-21
+
+- Owner explicitly resumed the task. Read the saved pause checkpoint and retained the mandatory ERPNext preservation constraint.
+- Current source commit `4bc211c` has a [successful hosted CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39284932897): 30 PostgreSQL tests (10.098 seconds), 8 configuration/launcher/Compose tests, and 5 POS DOM tests, plus the Docker stack and production checks. Earlier queued status is superseded by this actual result.
+- Public checks found HTTP 80 returning a Caddy HTTPS redirect and HTTPS failing its handshake. This differs from the original nginx HTTP baseline; cause is not yet established, and no server repair or configuration change has been attempted on resume.
+- Opened an approved password-only read-only SSH inspection for ports, nginx fingerprints/routing, existing containers and redacted logs. Awaiting local password entry; root credentials remain outside chat/files and no persistent SSH key is installed.
+- Authenticated read-only inspection completed: PostgreSQL and Gunicorn are healthy, initialization exited successfully, and the original RestaurantFlow proxy obtained a publicly trusted IP certificate on October 19. A root-only deployment result exists, so the disconnected local wrapper was not proof that the remote installer failed.
+- Current routing differs from that completed installation: the RestaurantFlow Docker proxy exited cleanly on October 20, and a native Caddy process now owns both 80 and 443. ERPNext's Gunicorn/MariaDB/Redis remain running, but its public HTTP route redirects to failing HTTPS. Native proxy provenance/configuration must be inspected before any repair. No server mutation has been performed during resume.
+- Further inspection found an active, API-managed domain route on the native Caddy and a stopped original nginx service. Owner explicitly authorized additive shared routing while keeping existing services running. Recovered the original demo credentials into an ignored account-restricted local file without changing passwords or exposing them in source/log output.
+- Prepared `docker-compose.shared.yml`, a private HTTP proxy configuration, an additive Caddy planning helper and a separate ERP nginx bridge generator. All 12 local configuration/planner tests pass, including route/certificate-policy preservation, ambiguity rejection, private bindings and original ERP asset/site/WebSocket rule preservation. Actual shared-host application remains pending.

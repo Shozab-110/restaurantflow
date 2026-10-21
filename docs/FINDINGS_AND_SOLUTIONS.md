@@ -42,7 +42,7 @@ This log distinguishes application defects, setup problems, and verification tha
 These are scoped MVP boundaries, not silently missing integrations:
 
 - Payments/refunds are manually confirmed ledger entries; no external payment gateway or tax-authority integration is present.
-- Inventory, formal cash-drawer shifts, split checks, offline mode, table transfers and delivery dispatch are deferred.
+- Inventory, formal cash-drawer shifts, split checks, independent offline device queues/synchronization, table transfers and delivery dispatch are deferred. Laptop-hosted offline LAN operation is implemented; see [Offline demonstration](OFFLINE_DEMO.md).
 - Closed-order corrections need a controlled external accounting process; the MVP does not mutate closed sales.
 - Tax/service are order-wide, exclusive percentages of the discounted subtotal; currency uses two decimal places and there is no FX conversion.
 - HTML receipts support browser printing/Save as PDF. Dedicated PDF generation, kitchen sound and advanced analytics are deferred.

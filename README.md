@@ -90,7 +90,7 @@ The local acceptance run passed **29 PostgreSQL workflow/security/concurrency te
 
 GitHub Actions runs locked dependency installation, frontend compilation, PostgreSQL tests, POS interaction checks, production settings checks, and a Docker stack smoke test on Linux. Its actual result is linked by the badge above; a workflow file alone is not proof of a passing run.
 
-The [verified Linux CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39275185992) passed all **38 automated tests** (29 PostgreSQL, 4 configuration, 5 POS DOM), built the Docker image, started PostgreSQL/Gunicorn, and verified health, login, owner initialization, and container production checks.
+The [verified Linux CI run](https://github.com/Shozab-110/restaurantflow/actions/runs/39284932897) passed all **43 automated tests** (30 PostgreSQL, 8 configuration/launcher/Compose, 5 POS DOM), built the Docker image, started PostgreSQL/Gunicorn, and verified health, login, owner initialization, and container production checks.
 
 ```bash
 python manage.py check
